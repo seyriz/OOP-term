@@ -98,6 +98,22 @@ public class EmpoloyeeStruct {
 	public void setNext(EmpoloyeeStruct next) {
 		this.next = next;
 	}
+
+	public int getID() {
+		return ID;
+	}
+
+	public void setID(int iD) {
+		ID = iD;
+	}
+
+	public long getMonthPay() {
+		return monthPay;
+	}
+
+	public void setMonthPay(long monthPay) {
+		this.monthPay = monthPay;
+	}
 	
 
 }

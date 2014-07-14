@@ -1,9 +1,11 @@
 package Term_201002484_console;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
 import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.CSVWriter;
 
 public class manager extends empoloyee {
 	manager(){
@@ -86,10 +88,26 @@ public class manager extends empoloyee {
 			}
 		}
 	}
-	public void printPaySheet(int YYYYMM){
-		int ID = 1;
-		while(){
-			
+	public void printPaySheet(){
+		Scanner inp = new Scanner(System.in);
+		System.out.print("from : ");
+		int start = inp.nextInt();
+		System.out.print("to : ");
+		int end = inp.nextInt();
+		System.out.print("when(YYYYMM) : ");
+		int YYYYMM = inp.nextInt();
+		EmpoloyeeStruct empoloyees = DB.getEmpoloyeesPayStruct(start, end, YYYYMM);
+		try{
+			CSVWriter writer = new CSVWriter(new FileWriter("EmpoloyeesPaySheet.csv"), '\t');
+			for(;empoloyees.getNext()!=null;empoloyees=empoloyees.getNext()){
+				String[] entries = {Integer.toString(empoloyees.getID()), empoloyees.getName(), 
+						empoloyees.getPhone(), Long.toString(empoloyees.getMonthPay()), empoloyees.getDeposite()};
+				writer.writeNext(entries);
+			}
+			writer.close();
+		}catch(IOException e){
+			e.printStackTrace();
+
 		}
 	}
 	public EmpoloyeeStruct importEmpoloyee(String filePath){

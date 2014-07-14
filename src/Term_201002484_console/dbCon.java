@@ -250,14 +250,20 @@ public class dbCon {
 			open();
 			String query = "SELECT * FROM PhoneBook";
 			this.dbResult = this.dbStat.executeQuery(query);
-			EmpoloyeeStruct empoloyees = null;					
-			while(this.dbResult.next()){
+			EmpoloyeeStruct empoloyees = null;
+			if(start!=0){
+				for(int i=0;i<start;i++){
+					this.dbResult.next();
+				}
+			}
+			while(this.dbResult.next()&&start!=end){
 				if(empoloyees==null){
 					empoloyees = new EmpoloyeeStruct(this.dbResult.getString("ID"), this.dbResult.getString("phone"), this.dbResult.getString("address"), this.dbResult.getString("deposite"), this.dbResult.getInt("ID"), getMonthPay(this.dbResult.getInt("ID"), YYYYMM));
 				}
 				else{
 					empoloyees.addEmpoloyee(this.dbResult.getString("ID"), this.dbResult.getString("phone"), this.dbResult.getString("address"), this.dbResult.getString("deposite"), this.dbResult.getInt("ID"), getMonthPay(this.dbResult.getInt("ID"), YYYYMM));
 				}
+				end--;
 			}
 			this.dbResult.close();
 			close();
