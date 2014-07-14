@@ -4,7 +4,11 @@ import java.sql.*;
 import java.util.*;
 
 import org.sqlite.*;
-
+/**
+ * @see empoloyee
+ * @version 0.10
+ * @author Lee, Han-Wool (kudnya@gmail.com)
+ */
 public class dbCon {
 	private Connection dbConn;
 	private String dbFileName = "201002484";
@@ -12,10 +16,7 @@ public class dbCon {
 	private Statement dbStat;
 	private boolean isOpened = false;
 	private final String DATABASE = "oo-term";
-	private final int overManager = 2;
-	private GregorianCalendar calender;
-	private final int[] pays = {9000, 8000, 7000, 6000, 5210};
-
+	private final int isManager = 2;
 	static{
 		try{
 			Class.forName("org.sqlite.JDBC");
@@ -25,14 +26,20 @@ public class dbCon {
 	}
 
 	dbCon(){
-		this.calender = new GregorianCalendar();
 	}
-
+	/**
+	 * DC Connection 생성자 
+	 * @author seyriz
+	 * @param dbFileName 데이터베이스 파일 위치
+	 */
 	dbCon(String dbFileName){
 		this.dbFileName = dbFileName;
-		this.calender = new GregorianCalendar();
 	}
-
+	/**
+	 * 데이터베이스 오픈 
+	 * @author seyriz
+	 * @exception SQLException
+	 */
 	public boolean open(){
 		try{
 			SQLiteConfig conf = new SQLiteConfig();
@@ -44,10 +51,14 @@ public class dbCon {
 			return false;
 		}
 		this.isOpened = true;
-		System.out.println("DBG: DB opened");
 		return this.isOpened;
 	}
-
+	/**
+	 * 데이터베이스 클로즈
+	 * @author seyriz
+	 * @exception SQLException
+	 * @return
+	 */
 	public boolean close(){
 		if(this.isOpened == false) { return true; }
 
@@ -59,25 +70,33 @@ public class dbCon {
 			return false; 
 		}
 		this.isOpened = false;
-		System.out.println("DBG: DB closed");
 		return true;
 	}
+	/**
+	 * 로그인 메소드
+	 * @param ID 사원번호
+	 * @param HASH HASH화 된 비밀번호
+	 * @return 관리자 등급이면 manager, 아니면 empoloyee
+	 */
 	public empoloyee Login(int ID, int HASH){
 		String query;
 		empoloyee temp;
 		open();
 		try{
-			query = "SELECT * FROM PhoneBook WHERE ID='"+Integer.toString(ID)+"' and password='"+Integer.toString(HASH)+"'";
+			query = "SELECT * FROM PhoneBook WHERE ID="+ID+"AND password="+HASH;
 			this.dbResult = this.dbStat.executeQuery(query);
-			int position = this.dbResult.getInt("position");
-			if(position>overManager){
-				temp = new empoloyee(this.dbResult.getInt("ID"),this.dbResult.getString("name"),position,false);
+			if(this.dbResult.getInt("position")<isManager){
+				temp = new manager(new EmpoloyeeStruct(this.dbResult.getString("name"), this.dbResult.getString("phone"), 
+						this.dbResult.getString("address"),this.dbResult.getString("deposite"), this.dbResult.getInt("ID"), 
+						this.dbResult.getInt("position"), this.dbResult.getBoolean("onWork")));
 				this.dbResult.close();
 				close();
 				return temp;
 			}
 			else{
-				temp = new manager(this.dbResult.getInt("ID"),this.dbResult.getString("name"),position,false);
+				temp = new empoloyee(new EmpoloyeeStruct(this.dbResult.getString("name"), this.dbResult.getString("phone"), 
+						this.dbResult.getString("address"),this.dbResult.getString("deposite"), this.dbResult.getInt("ID"), 
+						this.dbResult.getInt("position"), this.dbResult.getBoolean("onWork")));
 				this.dbResult.close();
 				close();
 				return temp;
@@ -87,7 +106,14 @@ public class dbCon {
 		}
 		return null;
 	}
-
+	/**
+	 * SELECT문을 위한 메소드
+	 * @param Table 테이블명 
+	 * @param column 컬럼이름 
+	 * @param where 검색조건
+	 * @param what 반환조건 
+	 * @return
+	 */
 	public String select(String Table, String column, String where, String what){
 		String ret,query;
 		open();
@@ -103,28 +129,20 @@ public class dbCon {
 			return null;
 		}
 	}
+	/**
+	 * SQL문 실행 메소드
+	 * @param querys 쿼리문
+	 * @return 실행결과
+	 */
 	public boolean excute(String querys){
 		String query_prefix = querys.split(" ")[0];
 		open();
 		try{
-			if(query_prefix.equals("CREATE")){
+			if(query_prefix.equals("CREATE")||query_prefix.equals("INSERT")||query_prefix.equals("UPDATE")||
+					query_prefix.equals("DELETE")||query_prefix.equals("PROGMA")||query_prefix.equals("DELETE")){
 				this.dbStat.executeUpdate(querys);
 			}
-			if(query_prefix.equals("INSERT")){
-				this.dbStat.executeUpdate(querys);
-			}
-			if(query_prefix.equals("UPDATE")){
-				this.dbStat.executeUpdate(querys);
-			}
-			if(query_prefix.equals("DELETE")){
-				this.dbStat.executeUpdate(querys);
-			}
-			if(query_prefix.equals("PROGMA")){
-				this.dbStat.executeUpdate(querys);
-			}
-			if(query_prefix.equals("DELETE")){
-				this.dbStat.executeUpdate(querys);
-			}
+			else return false;
 		}catch(SQLException e){
 			e.printStackTrace();
 			return false;
@@ -132,13 +150,19 @@ public class dbCon {
 		close();
 		return true;
 	}
-
+	/**
+	 * 새로운 시작
+	 * @param Passwd 관리자 비밀번호
+	 * @param Name 관리자 이름
+	 * @param Phone 관리자 전화번호
+	 * @param Address 관리자 주소
+	 * @param deposite 관리자 계좌번호
+	 * @param position 관지가 직급
+	 */
 	public void newStart(String Passwd, String Name, String Phone, String Address,String deposite, int position){
-		String query,progma;
-		progma = "PRAGMA foreign_keys = \"1\";";
+		String query;
 		query = "CREATE TABLE 'PhoneBook' ('ID'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,'password' INTEGER NOT NULL,'name' TEXT NOT NULL,'phone'	TEXT,'address'	TEXT,'position'	INTEGER NOT NULL,'deposite' TEXT NOT NULL,'onWork'	INTEGER NOT NULL)";
 		excute(query);
-		excute(progma);
 		query = "CREATE TABLE 'Working' (	"
 				+ "'ID'	TEXT NOT NULL,"
 				+ "'YYYYMM'		INTEGER,"
@@ -149,71 +173,11 @@ public class dbCon {
 		query = "INSERT INTO 'PhoneBook'('ID','password','name','phone','address','position','deposite','onWork') VALUES (NULL,"+Passwd.hashCode()+",'"+Name+"','"+Phone+"','"+Address+"',"+position+",'"+deposite+"',0)";
 		excute(query);
 	}
-	public boolean startWork(int ID, long nowTime) {
-		// TODO Auto-generated method stub
-		String query;
-		if(isOnWork(ID)){
-			System.out.println("당신은 아직 일하고 있습니다.");
-			return false;
-		}
-		else{
-			StringBuffer YYYYMM = new StringBuffer();
-			YYYYMM.append(this.calender.get(this.calender.YEAR));
-			int thisMonth;
-			if(this.calender.get(this.calender.MONTH)<8){
-				YYYYMM.append("0");
-				thisMonth = this.calender.get(this.calender.MONTH);
-				++thisMonth;
-				YYYYMM.append(thisMonth);
-			}
-			else{
-				thisMonth = this.calender.get(this.calender.MONTH);
-				++thisMonth;
-				YYYYMM.append(thisMonth);
-			}
-			query = "INSERT INTO 'Working'('ID','YYYYMM','startWork','endWork','toDaysPay') VALUES ('"+ID+"','"+YYYYMM+"',"+nowTime+",NULL,NULL);";
-			excute(query);
-			setOnWork(true, ID);
-			return true;
-		}
-	}
-
-	public boolean endWork(int ID, long nowTime) {
-		// TODO Auto-generated method stub
-		String query;
-		if(!isOnWork(ID)){
-			System.out.println("당신은 아직 출근도 안했습니다.");
-			return false;
-		}
-		else{
-			int stWork = Integer.parseInt(select("Working","ID",Integer.toString(ID),"startWork"));
-			int position = Integer.parseInt(select("PhoneBook","ID",Integer.toString(ID),"position"));
-			int toDaysPay = (int)(((nowTime-stWork)/60/60)*this.pays[position]);
-			query = "UPDATE 'Working' SET endWork="+Long.toString(nowTime)+" WHERE ID="+ID+";";
-			excute(query);
-			query = "UPDATE 'Working' SET toDaysPay="+toDaysPay+" WHERE ID="+ID+";";
-			excute(query);
-			setOnWork(false, ID);
-			return true;
-		}
-	}
-	private boolean isOnWork(int ID) {
-		if(select("PhoneBook","ID",Integer.toString(ID),"onWork").equals(Integer.toString(1))){
-			return true;
-		}
-		else return false;
-	}
-	
-	private boolean setOnWork(boolean work, int ID){
-		if(work){
-			String query = "UPDATE 'PhoneBook' SET onWork=1 WHERE ID="+Integer.toString(ID)+";";
-			return excute(query);
-		}
-		else{
-			String query = "UPDATE 'PhoneBook' SET onWork=0 WHERE ID="+Integer.toString(ID)+";";
-			return excute(query);
-		}
-	}
+	/**
+	 * 직원 대량 추가 
+	 * @param empoloyees 직원정보
+	 * @return 수행결과
+	 */
 	public boolean importEmpoloyee(EmpoloyeeStruct empoloyees){
 		try{
 			for(;empoloyees.getNext()!=null;empoloyees=empoloyees.getNext()){
@@ -230,6 +194,16 @@ public class dbCon {
 			return false;
 		}
 	}
+	/**
+	 * 직원 추가
+	 * @param Passwd 비밀번호 
+	 * @param Name 이름 
+	 * @param Phone 전화번호 
+	 * @param Address 주소 
+	 * @param deposite 계좌번호
+	 * @param position 직급
+	 * @return 수행결과 
+	 */
 	public boolean addStaff(String Passwd, String Name, String Phone, String Address, String deposite, int position){
 		String querys=  "INSERT INTO 'PhoneBook'('ID','password','name','phone','address','position','deposite','onWork') "
 				+ "VALUES (NULL,"+Passwd.hashCode()+",'"+Name+"',"+Phone+","+Address+","+position+","+deposite+",0);";
@@ -238,6 +212,11 @@ public class dbCon {
 		}
 		else return false;
 	}
+	/**
+	 * 직원 삭제
+	 * @param ID 사원번호
+	 * @return 수행결과 
+	 */
 	public boolean delStaff(int ID){
 		String query = "DELETE FROM `PhoneBook` WHERE ID"+ID+";";
 		if(excute(query)){
@@ -245,6 +224,13 @@ public class dbCon {
 		}
 		else return false;
 	}
+	/**
+	 * 다수 직원의 월급 조회 결과를 CSV로 출력 
+	 * @param start 사원번호 시작
+	 * @param end 사원번호 끝
+	 * @param YYYYMM 연월(YYYYMM형식)
+	 * @return
+	 */
 	public EmpoloyeeStruct getEmpoloyeesPayStruct(int start, int end, int YYYYMM){
 		try{
 			open();
@@ -273,7 +259,12 @@ public class dbCon {
 		}
 		return null;
 	}
-	
+	/**
+	 * 한 직원 개인의 급여 조회
+	 * @param ID 사원번호
+	 * @param YYYYMM 연월(YYYYMM형식)
+	 * @return 급여
+	 */
 	public long getMonthPay(int ID, int YYYYMM){
 		String query = "SELECT SUM(toDaysPay) FROM Working WHERE ID="+ID+" AND YYYYMM="+YYYYMM+";";
 		open();
@@ -289,5 +280,5 @@ public class dbCon {
 			return -1;
 		}
 	}
-	
+
 }

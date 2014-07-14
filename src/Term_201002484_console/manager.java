@@ -6,16 +6,26 @@ import java.util.*;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
-
+/**
+ * @see empoloyee
+ * @version 0.10
+ * @author Lee, Han-Wool (kudnya@gmail.com)
+ */
 public class manager extends empoloyee {
 	manager(){
 
 	}
-	manager(int ID, String name, int position, boolean onWork){
-		super(ID,name,position,onWork);
+	/**
+	 * 관리자 생성자
+	 * @param empoloyee 직원정보
+	 */
+	manager(EmpoloyeeStruct empoloyee){
+		super(empoloyee);
 
 	}
-
+	/**
+	 * 관리자 화면 
+	 */
 	public void manage(){
 		Scanner inp_manager = new Scanner(System.in);
 		for(;;){
@@ -88,6 +98,11 @@ public class manager extends empoloyee {
 			}
 		}
 	}
+	/**
+	 * 다수의 사원에 대한 급여 기록부를 출력
+	 * @author seyriz
+	 * @exception IOException
+	 */
 	public void printPaySheet(){
 		Scanner inp = new Scanner(System.in);
 		System.out.print("from : ");
@@ -110,8 +125,15 @@ public class manager extends empoloyee {
 
 		}
 	}
+	/**
+	 * CSV파일에서 여러 사원을 추가하기 위한 사원정보 링크드 리스트 생성 메소드
+	 * @author seyriz
+	 * @param filePath CSV파일 위치
+	 * @return EmpoloyeeStruct
+	 * @exception IOException
+	 * 
+	 */
 	public EmpoloyeeStruct importEmpoloyee(String filePath){
-
 		try{
 			EmpoloyeeStruct empoloyees;
 			CSVReader reader = new CSVReader(new FileReader(filePath));

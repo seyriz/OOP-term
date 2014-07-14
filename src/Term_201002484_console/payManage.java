@@ -1,6 +1,12 @@
 package Term_201002484_console;
 import java.util.*;
 import java.io.*;
+
+/**
+* @see empoloyee
+* @version 0.10
+* @author Lee, Han-Wool (kudnya@gmail.com)
+*/
 public class payManage {
 	private static dbCon DB;
 	public static void main(String[] args) {
@@ -51,28 +57,30 @@ public class payManage {
 		}
 		return;
 	}
+	/**
+	 * 로그인하고 기본화면을 출력.
+	 * @param ID 사원번호
+	 * @param HASH HASH화 된 비밀번호
+	 */
 	public static void Login(int ID, int HASH){
 		empoloyee logined = DB.Login(ID, HASH);
 			System.out.print("1. 출근 \n2. 퇴근\n3. 관리\n4. LogOut\nSelect : ");
 			Scanner inp = new Scanner(System.in);
 			int temp = inp.nextInt();
 			if(temp==1){
-				logined.startWork();
+				logined.startWork(ID, System.currentTimeMillis()/1000);
 			}
 			if(temp==2){
-				logined.endWork();
+				logined.endWork(ID, System.currentTimeMillis()/1000);
 			}
 			if(temp==3){
 				logined.manage();
-				return;
 			}
 			if(temp==4){
 				inp.close();
-				return;
 			}
 			else{
 				System.out.println("Worng.");
-				return;
 			}
 		}
 	
