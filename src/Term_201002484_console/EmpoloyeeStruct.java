@@ -115,5 +115,4 @@ public class EmpoloyeeStruct {
 		this.monthPay = monthPay;
 	}
 	
-
 }
