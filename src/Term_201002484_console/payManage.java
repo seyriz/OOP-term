@@ -44,7 +44,7 @@ public class payManage {
 			int position = inp.nextInt();
 
 			System.out.print("Deposite : ");
-			inp.nextLine();
+//			inp.nextLine();
 			String deposite = inp.nextLine();
 
 			DB.newStart(Passwd , name, Phone, address, deposite, position);
