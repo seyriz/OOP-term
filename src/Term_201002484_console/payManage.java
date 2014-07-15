@@ -22,7 +22,6 @@ public class payManage {
 			System.out.print("PassWord : ");
 			Passwd = inp.nextLine();
 			Login(Integer.parseInt(ID), Passwd.hashCode());
-			inp.close();
 		}catch(FileNotFoundException e){
 			DB = new dbCon();
 			Scanner inp = new Scanner(System.in);
@@ -51,9 +50,6 @@ public class payManage {
 			System.out.println("Your ID : 1");
 			System.out.println("Your PassWord : "+Passwd);
 			Login(1, Passwd.hashCode());
-			inp.close();
-		}catch(IOException e){
-			e.printStackTrace();
 		}
 		return;
 	}
@@ -64,7 +60,10 @@ public class payManage {
 	 */
 	public static void Login(int ID, int HASH){
 		empoloyee logined = DB.Login(ID, HASH);
-		logined.firstMenu();
+		if(logined!=null){
+			logined.firstMenu();
+		}
+		else return;
 	}
 
 }

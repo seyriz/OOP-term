@@ -9,7 +9,7 @@ public class EmpoloyeesInfo {
 	private int position, ID;
 	private long monthPay;
 	private EmpoloyeesInfo next;
-	boolean onWork;
+	private boolean onWork;
 	/**
 	 * 기본 생성자.
 	 */

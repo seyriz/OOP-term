@@ -51,6 +51,7 @@ public class dbCon {
 			return false;
 		}
 		this.isOpened = true;
+		System.out.println("[DBG] Open");
 		return this.isOpened;
 	}
 	/**
@@ -70,6 +71,7 @@ public class dbCon {
 			return false; 
 		}
 		this.isOpened = false;
+		System.out.println("[DBG] Close");
 		return true;
 	}
 	/**
@@ -83,23 +85,29 @@ public class dbCon {
 		empoloyee temp;
 		open();
 		try{
-			query = "SELECT * FROM PhoneBook WHERE ID="+ID+" AND password='"+HASH+"';";
+			query = "SELECT * FROM PhoneBook WHERE ID="+ID+";";
 			this.dbResult = this.dbStat.executeQuery(query);
-			if(this.dbResult.getInt("position")<isManager){
-				temp = new manager(new EmpoloyeesInfo(this.dbResult.getString("name"), this.dbResult.getString("phone"), 
-						this.dbResult.getString("address"),this.dbResult.getString("deposite"), this.dbResult.getInt("ID"), 
-						this.dbResult.getInt("position"), this.dbResult.getBoolean("onWork")));
-				this.dbResult.close();
-				close();
-				return temp;
+			if(this.dbResult.getInt("password")==HASH){
+				if(this.dbResult.getInt("position")<isManager){
+					temp = new manager(new EmpoloyeesInfo(this.dbResult.getString("name"), this.dbResult.getString("phone"), 
+							this.dbResult.getString("address"),this.dbResult.getString("deposite"), this.dbResult.getInt("ID"), 
+							this.dbResult.getInt("position"), this.dbResult.getBoolean("onWork")));
+					this.dbResult.close();
+					close();
+					return temp;
+				}
+				else{
+					temp = new empoloyee(new EmpoloyeesInfo(this.dbResult.getString("name"), this.dbResult.getString("phone"), 
+							this.dbResult.getString("address"),this.dbResult.getString("deposite"), this.dbResult.getInt("ID"), 
+							this.dbResult.getInt("position"), this.dbResult.getBoolean("onWork")));
+					this.dbResult.close();
+					close();
+					return temp;
+				}
 			}
 			else{
-				temp = new empoloyee(new EmpoloyeesInfo(this.dbResult.getString("name"), this.dbResult.getString("phone"), 
-						this.dbResult.getString("address"),this.dbResult.getString("deposite"), this.dbResult.getInt("ID"), 
-						this.dbResult.getInt("position"), this.dbResult.getBoolean("onWork")));
-				this.dbResult.close();
-				close();
-				return temp;
+				System.out.println("Login failed. \n Check your account.");
+				return null;
 			}
 		}catch(SQLException e){
 			e.printStackTrace();
@@ -126,6 +134,7 @@ public class dbCon {
 			return ret;
 		}catch(SQLException e){
 			e.printStackTrace();
+			close();
 			return null;
 		}
 	}
@@ -218,7 +227,7 @@ public class dbCon {
 	 * @return 수행결과 
 	 */
 	public boolean delStaff(int ID){
-		String query = "DELETE FROM `PhoneBook` WHERE ID"+ID+";";
+		String query = "DELETE FROM `PhoneBook` WHERE ID="+ID+";";
 		if(excute(query)){
 			return true;
 		}
@@ -226,38 +235,43 @@ public class dbCon {
 	}
 	/**
 	 * 다수 직원의 월급 조회 결과를 CSV로 출력 
+	 * 에러에 취얀한 구조이지만 라이브러리에서 ResultSet의 오픈 여부를 알려주지 않아 처리할 수 없음
 	 * @param start 사원번호 시작
 	 * @param end 사원번호 끝
 	 * @param YYYYMM 연월(YYYYMM형식)
 	 * @return
 	 */
 	public EmpoloyeesInfo getEmpoloyeesPayStruct(int start, int end, int YYYYMM){
-		try{
-			open();
-			String query = "SELECT * FROM PhoneBook";
-			this.dbResult = this.dbStat.executeQuery(query);
-			EmpoloyeesInfo empoloyees = null;
-			if(start!=0){
-				for(int i=0;i<start;i++){
-					this.dbResult.next();
-				}
-			}
-			while(this.dbResult.next()&&start!=end){
+		EmpoloyeesInfo empoloyees=null;
+		String name, phone, address, deposite;
+		long monthPay;
+		for(int ID = start; ID<=end; ID++){
+			try{
+				open();
+				String query = "SELECT * FROM PhoneBook WHERE ID='"+ID+"';";
+				this.dbResult = this.dbStat.executeQuery(query);
+				name = this.dbResult.getString("name");
+				phone = this.dbResult.getString("phone");
+				address = this.dbResult.getString("address");
+				deposite = this.dbResult.getString("deposite");
+				this.dbResult.close();
+				close();
+				monthPay = getMonthPay(ID, YYYYMM);
 				if(empoloyees==null){
-					empoloyees = new EmpoloyeesInfo(this.dbResult.getString("ID"), this.dbResult.getString("phone"), this.dbResult.getString("address"), this.dbResult.getString("deposite"), this.dbResult.getInt("ID"), getMonthPay(this.dbResult.getInt("ID"), YYYYMM));
+					empoloyees = new EmpoloyeesInfo(name, phone, address, deposite, ID, monthPay);
 				}
 				else{
-					empoloyees.addEmpoloyee(this.dbResult.getString("ID"), this.dbResult.getString("phone"), this.dbResult.getString("address"), this.dbResult.getString("deposite"), this.dbResult.getInt("ID"), getMonthPay(this.dbResult.getInt("ID"), YYYYMM));
+					empoloyees.addEmpoloyee(name, phone, address, deposite, ID, monthPay);
 				}
-				end--;
+			}catch(SQLException e){
+			}catch(NullPointerException e){
+				e.printStackTrace();
 			}
-			this.dbResult.close();
-			close();
-			return empoloyees;
-		}catch(SQLException e){
-			e.printStackTrace();
+			finally{
+				
+			}
 		}
-		return null;
+		return empoloyees;
 	}
 	/**
 	 * 한 직원 개인의 급여 조회
@@ -273,7 +287,6 @@ public class dbCon {
 			long ret = this.dbResult.getLong("SUM(toDaysPay)");
 			this.dbResult.close();
 			close();
-			System.out.println("ID : "+ID+" "+select("PhoneBook","ID",Integer.toString(ID),"name")+"의 "+ YYYYMM +" 임금은 "+ret+"입니다.");
 			return ret;
 		}catch(SQLException e){
 			e.printStackTrace();

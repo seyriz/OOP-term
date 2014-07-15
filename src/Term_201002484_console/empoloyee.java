@@ -1,10 +1,10 @@
 package Term_201002484_console;
 import java.util.*;
 /**
-* @see empoloyee
-* @version 0.10
-* @author Lee, Han-Wool (kudnya@gmail.com)
-*/
+ * @see empoloyee
+ * @version 0.10
+ * @author Lee, Han-Wool (kudnya@gmail.com)
+ */
 public class empoloyee implements IOProc{
 	EmpoloyeesInfo empoloyees;
 	protected dbCon DB;
@@ -120,12 +120,8 @@ public class empoloyee implements IOProc{
 			int sel = Integer.parseInt(inp_empoloyee.nextLine());
 			switch(sel){
 			case 1: 
-				System.out.print("출력하고 싶은 달을 입력하세요(YYYYMM형식) : ");
-				int YYYYMM = Integer.parseInt(inp_empoloyee.nextLine());
-				printPayBill(this.empoloyees.getID(), YYYYMM);
-				break;
+				managePay();
 			case 2:
-				inp_empoloyee.close();
 				return;
 			default:
 				System.out.println("Worng");
@@ -135,9 +131,17 @@ public class empoloyee implements IOProc{
 
 	}
 
+	private void managePay(){
+		Scanner inp_empoloyee = new Scanner(System.in);
+		System.out.print("출력하고 싶은 달을 입력하세요(YYYYMM형식) : ");
+		int YYYYMM = Integer.parseInt(inp_empoloyee.nextLine());
+		printPayBill(this.empoloyees.getID(), YYYYMM);
+		return;
+	}
+
 	public void printPayBill(int ID, int YYYYMM) {
 		// TODO Auto-generated method stub
-		System.out.println(DB.select("PhoneBook", "ID", Integer.toString(ID), "name")+"님의 "+YYYYMM+" 급여는 "+DB.getMonthPay(this.empoloyees.getID(), YYYYMM)+"입니다.");
+		System.out.println(this.empoloyees.getName()+"님의 "+YYYYMM+" 급여는 "+DB.getMonthPay(this.empoloyees.getID(), YYYYMM)+"입니다.");
 	}
 	public void printPaySheet(){
 	}
@@ -147,28 +151,25 @@ public class empoloyee implements IOProc{
 	}
 
 	public void firstMenu(){
-		System.out.print("1. 출근 \n2. 퇴근\n3. 관리\n4. LogOut\nSelect : ");
-		Scanner inp = new Scanner(System.in);
-		int temp = Integer.parseInt(inp.nextLine());
 		for(;;){
+			System.out.print("1. 출근 \n2. 퇴근\n3. 관리\n4. LogOut\nSelect : ");
+			Scanner inp = new Scanner(System.in);
+			int temp = Integer.parseInt(inp.nextLine());
+
 			if(temp==1){
 				startWork(this.empoloyees.getID(), System.currentTimeMillis()/1000);
-				inp.close();
-				return;
+				continue;
 			}
 			if(temp==2){
 				endWork(this.empoloyees.getID(), System.currentTimeMillis()/1000);
-				inp.close();
-				return;
+				continue;
 			}
 			if(temp==3){
 				manage();
-				inp.close();
-				return;
+				continue;
 			}
 			if(temp==4){
-				inp.close();
-				return;
+				continue;
 			}
 			else{
 				System.out.println("Worng.");
