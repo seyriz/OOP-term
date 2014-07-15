@@ -40,7 +40,7 @@ public class manager extends empoloyee {
 
 				case 1: // 1명씩 
 					System.out.print("암호 : \n");
-//					inp_manager.nextLine();
+					inp_manager.nextLine();
 					String Passwd = inp_manager.nextLine();
 					System.out.print("이름 : \n");
 					String Name = inp_manager.nextLine();
