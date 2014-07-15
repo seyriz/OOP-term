@@ -4,16 +4,16 @@ package Term_201002484_console;
 * @version 0.10
 * @author Lee, Han-Wool (kudnya@gmail.com)
 */
-public class EmpoloyeeStruct {
+public class EmpoloyeesInfo {
 	private String passwWd, name, phone, address, deposite;
 	private int position, ID;
 	private long monthPay;
-	private EmpoloyeeStruct next;
+	private EmpoloyeesInfo next;
 	boolean onWork;
 	/**
 	 * 기본 생성자.
 	 */
-	public EmpoloyeeStruct() {
+	public EmpoloyeesInfo() {
 		// TODO Auto-generated constructor stub
 		this.passwWd = null;
 		this.name = null;
@@ -32,7 +32,7 @@ public class EmpoloyeeStruct {
 	 * @param deposite 계좌번호
 	 * @param position 직급(0~5 작을 수록 직급이 높음)
 	 */
-	public EmpoloyeeStruct(String passWd, String name, String phone, String address, String deposite, int position){
+	public EmpoloyeesInfo(String passWd, String name, String phone, String address, String deposite, int position){
 		this.passwWd = passWd;
 		this.name = name;
 		this.phone = phone;
@@ -50,7 +50,7 @@ public class EmpoloyeeStruct {
 	 * @param ID 사원번호
 	 * @param monthPay 급여
 	 */
-	public EmpoloyeeStruct(String name, String phone, String address, String deposite, int ID, long monthPay){
+	public EmpoloyeesInfo(String name, String phone, String address, String deposite, int ID, long monthPay){
 		this.name = name;
 		this.phone = phone;
 		this.address = address;
@@ -69,7 +69,7 @@ public class EmpoloyeeStruct {
 	 * @param position 직급
 	 * @param onWork 근무여부
 	 */
-	public EmpoloyeeStruct(String name, String phone, String address, String deposite, int ID, int position, boolean onWork){
+	public EmpoloyeesInfo(String name, String phone, String address, String deposite, int ID, int position, boolean onWork){
 		this.name = name;
 		this.phone = phone;
 		this.address = address;
@@ -89,7 +89,7 @@ public class EmpoloyeeStruct {
 	 * @param position 직급
 	 */
 	public void addEmpoloyee(String passWd, String name, String phone, String address, String deposite, int position){
-		this.next = new EmpoloyeeStruct(passWd, name, phone, address, deposite, position);
+		this.next = new EmpoloyeesInfo(passWd, name, phone, address, deposite, position);
 	}
 	/**
 	 * 여러 사원의 급여를 불러올 때 쓰는 링크드리스트 추가용 메소드
@@ -101,7 +101,7 @@ public class EmpoloyeeStruct {
 	 * @param monthPay 급여
 	 */
 	public void addEmpoloyee(String name, String phone, String address, String deposite, int ID, long monthPay){
-		this.next = new EmpoloyeeStruct(name, phone, address, deposite, ID, monthPay);
+		this.next = new EmpoloyeesInfo(name, phone, address, deposite, ID, monthPay);
 	}
 
 	public int getPosition() {
@@ -144,11 +144,11 @@ public class EmpoloyeeStruct {
 		this.address = address;
 	}
 
-	public EmpoloyeeStruct getNext() {
+	public EmpoloyeesInfo getNext() {
 		return next;
 	}
 
-	public void setNext(EmpoloyeeStruct next) {
+	public void setNext(EmpoloyeesInfo next) {
 		this.next = next;
 	}
 

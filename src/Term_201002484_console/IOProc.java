@@ -15,5 +15,5 @@ public interface IOProc {
 	 */
 	public void printPayBill(int ID, int YYYYMM);
 	public void printPaySheet();
-	public EmpoloyeeStruct importEmpoloyee(String filePath);
+	public EmpoloyeesInfo importEmpoloyee(String filePath);
 }

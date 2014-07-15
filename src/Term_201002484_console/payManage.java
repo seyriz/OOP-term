@@ -41,10 +41,9 @@ public class payManage {
 			String address = inp.nextLine();
 
 			System.out.print("Position : ");
-			int position = inp.nextInt();
+			int position = Integer.parseInt(inp.nextLine());
 
 			System.out.print("Deposite : ");
-			inp.nextLine();
 			String deposite = inp.nextLine();
 
 			DB.newStart(Passwd , name, Phone, address, deposite, position);
@@ -65,34 +64,7 @@ public class payManage {
 	 */
 	public static void Login(int ID, int HASH){
 		empoloyee logined = DB.Login(ID, HASH);
-		System.out.print("1. 출근 \n2. 퇴근\n3. 관리\n4. LogOut\nSelect : ");
-		Scanner inp = new Scanner(System.in);
-		int temp = inp.nextInt();
-		for(;;){
-			if(temp==1){
-				logined.startWork(ID, System.currentTimeMillis()/1000);
-				inp.close();
-				return;
-			}
-			if(temp==2){
-				logined.endWork(ID, System.currentTimeMillis()/1000);
-				inp.close();
-				return;
-			}
-			if(temp==3){
-				logined.manage();
-				inp.close();
-				return;
-			}
-			if(temp==4){
-				inp.close();
-				return;
-			}
-			else{
-				System.out.println("Worng.");
-				continue;
-			}
-		}
+		logined.firstMenu();
 	}
 
 }

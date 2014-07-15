@@ -6,19 +6,19 @@ import java.util.*;
 * @author Lee, Han-Wool (kudnya@gmail.com)
 */
 public class empoloyee implements IOProc{
-	EmpoloyeeStruct empoloyee;
+	EmpoloyeesInfo empoloyees;
 	protected dbCon DB;
 	protected long nowTime;
 	private GregorianCalendar calender;
 	private final int[] pays = {9000, 8000, 7000, 6000, 5210};
 	empoloyee(){
-		this.empoloyee = null;
+		this.empoloyees = null;
 		this.DB = null;
 		this.nowTime = -1;
 		this.calender = null;
 	}
-	empoloyee(EmpoloyeeStruct empoloyee){
-		this.empoloyee = empoloyee;
+	empoloyee(EmpoloyeesInfo empoloyee){
+		this.empoloyees = empoloyee;
 		this.DB = new dbCon();
 		this.calender = new GregorianCalendar();
 	}
@@ -117,12 +117,12 @@ public class empoloyee implements IOProc{
 		for(;;){
 			System.out.println("================ 관리 ================");
 			System.out.print("1. 내 급여명세서 출력\n2. Exit\n");
-			int sel = inp_empoloyee.nextInt();
+			int sel = Integer.parseInt(inp_empoloyee.nextLine());
 			switch(sel){
 			case 1: 
 				System.out.print("출력하고 싶은 달을 입력하세요(YYYYMM형식) : ");
-				int YYYYMM = inp_empoloyee.nextInt();
-				printPayBill(this.empoloyee.getID(), YYYYMM);
+				int YYYYMM = Integer.parseInt(inp_empoloyee.nextLine());
+				printPayBill(this.empoloyees.getID(), YYYYMM);
 				break;
 			case 2:
 				inp_empoloyee.close();
@@ -137,14 +137,43 @@ public class empoloyee implements IOProc{
 
 	public void printPayBill(int ID, int YYYYMM) {
 		// TODO Auto-generated method stub
-		System.out.println(this.empoloyee.getName()+"님의 "+YYYYMM+" 급여는 "+DB.getMonthPay(this.empoloyee.getID(), YYYYMM)+"입니다.");
+		System.out.println(DB.select("PhoneBook", "ID", Integer.toString(ID), "name")+"님의 "+YYYYMM+" 급여는 "+DB.getMonthPay(this.empoloyees.getID(), YYYYMM)+"입니다.");
 	}
 	public void printPaySheet(){
 	}
-	public EmpoloyeeStruct importEmpoloyee(String filePath) {
+	public EmpoloyeesInfo importEmpoloyee(String filePath) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	
+	public void firstMenu(){
+		System.out.print("1. 출근 \n2. 퇴근\n3. 관리\n4. LogOut\nSelect : ");
+		Scanner inp = new Scanner(System.in);
+		int temp = Integer.parseInt(inp.nextLine());
+		for(;;){
+			if(temp==1){
+				startWork(this.empoloyees.getID(), System.currentTimeMillis()/1000);
+				inp.close();
+				return;
+			}
+			if(temp==2){
+				endWork(this.empoloyees.getID(), System.currentTimeMillis()/1000);
+				inp.close();
+				return;
+			}
+			if(temp==3){
+				manage();
+				inp.close();
+				return;
+			}
+			if(temp==4){
+				inp.close();
+				return;
+			}
+			else{
+				System.out.println("Worng.");
+				continue;
+			}
+		}
+	}
 }

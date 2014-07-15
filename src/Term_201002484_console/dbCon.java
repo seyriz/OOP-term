@@ -86,7 +86,7 @@ public class dbCon {
 			query = "SELECT * FROM PhoneBook WHERE ID="+ID+" AND password='"+HASH+"';";
 			this.dbResult = this.dbStat.executeQuery(query);
 			if(this.dbResult.getInt("position")<isManager){
-				temp = new manager(new EmpoloyeeStruct(this.dbResult.getString("name"), this.dbResult.getString("phone"), 
+				temp = new manager(new EmpoloyeesInfo(this.dbResult.getString("name"), this.dbResult.getString("phone"), 
 						this.dbResult.getString("address"),this.dbResult.getString("deposite"), this.dbResult.getInt("ID"), 
 						this.dbResult.getInt("position"), this.dbResult.getBoolean("onWork")));
 				this.dbResult.close();
@@ -94,7 +94,7 @@ public class dbCon {
 				return temp;
 			}
 			else{
-				temp = new empoloyee(new EmpoloyeeStruct(this.dbResult.getString("name"), this.dbResult.getString("phone"), 
+				temp = new empoloyee(new EmpoloyeesInfo(this.dbResult.getString("name"), this.dbResult.getString("phone"), 
 						this.dbResult.getString("address"),this.dbResult.getString("deposite"), this.dbResult.getInt("ID"), 
 						this.dbResult.getInt("position"), this.dbResult.getBoolean("onWork")));
 				this.dbResult.close();
@@ -178,7 +178,7 @@ public class dbCon {
 	 * @param empoloyees 직원정보
 	 * @return 수행결과
 	 */
-	public boolean importEmpoloyee(EmpoloyeeStruct empoloyees){
+	public boolean importEmpoloyee(EmpoloyeesInfo empoloyees){
 		try{
 			for(;empoloyees.getNext()!=null;empoloyees=empoloyees.getNext()){
 				if(addStaff(empoloyees.getPasswWd(), empoloyees.getName(), empoloyees.getPhone(), empoloyees.getAddress(), empoloyees.getDeposite(), empoloyees.getPosition())){
@@ -231,12 +231,12 @@ public class dbCon {
 	 * @param YYYYMM 연월(YYYYMM형식)
 	 * @return
 	 */
-	public EmpoloyeeStruct getEmpoloyeesPayStruct(int start, int end, int YYYYMM){
+	public EmpoloyeesInfo getEmpoloyeesPayStruct(int start, int end, int YYYYMM){
 		try{
 			open();
 			String query = "SELECT * FROM PhoneBook";
 			this.dbResult = this.dbStat.executeQuery(query);
-			EmpoloyeeStruct empoloyees = null;
+			EmpoloyeesInfo empoloyees = null;
 			if(start!=0){
 				for(int i=0;i<start;i++){
 					this.dbResult.next();
@@ -244,7 +244,7 @@ public class dbCon {
 			}
 			while(this.dbResult.next()&&start!=end){
 				if(empoloyees==null){
-					empoloyees = new EmpoloyeeStruct(this.dbResult.getString("ID"), this.dbResult.getString("phone"), this.dbResult.getString("address"), this.dbResult.getString("deposite"), this.dbResult.getInt("ID"), getMonthPay(this.dbResult.getInt("ID"), YYYYMM));
+					empoloyees = new EmpoloyeesInfo(this.dbResult.getString("ID"), this.dbResult.getString("phone"), this.dbResult.getString("address"), this.dbResult.getString("deposite"), this.dbResult.getInt("ID"), getMonthPay(this.dbResult.getInt("ID"), YYYYMM));
 				}
 				else{
 					empoloyees.addEmpoloyee(this.dbResult.getString("ID"), this.dbResult.getString("phone"), this.dbResult.getString("address"), this.dbResult.getString("deposite"), this.dbResult.getInt("ID"), getMonthPay(this.dbResult.getInt("ID"), YYYYMM));
