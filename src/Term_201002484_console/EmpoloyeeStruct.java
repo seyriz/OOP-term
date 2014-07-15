@@ -9,6 +9,7 @@ public class EmpoloyeeStruct {
 	private int position, ID;
 	private long monthPay;
 	private EmpoloyeeStruct next;
+	boolean onWork;
 	/**
 	 * 기본 생성자.
 	 */

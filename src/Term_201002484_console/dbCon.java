@@ -83,7 +83,7 @@ public class dbCon {
 		empoloyee temp;
 		open();
 		try{
-			query = "SELECT * FROM PhoneBook WHERE ID="+ID+"AND password="+HASH;
+			query = "SELECT * FROM PhoneBook WHERE ID="+ID+" AND password='"+HASH+"';";
 			this.dbResult = this.dbStat.executeQuery(query);
 			if(this.dbResult.getInt("position")<isManager){
 				temp = new manager(new EmpoloyeeStruct(this.dbResult.getString("name"), this.dbResult.getString("phone"), 
@@ -118,7 +118,7 @@ public class dbCon {
 		String ret,query;
 		open();
 		try{
-			query = "SELECT * FROM "+Table+" WHERE "+column+"="+where+";";
+			query = "SELECT * FROM "+Table+" WHERE "+column+"='"+where+"';";
 			this.dbResult = this.dbStat.executeQuery(query);
 			ret = this.dbResult.getString(what);
 			this.dbResult.close();
@@ -206,7 +206,7 @@ public class dbCon {
 	 */
 	public boolean addStaff(String Passwd, String Name, String Phone, String Address, String deposite, int position){
 		String querys=  "INSERT INTO 'PhoneBook'('ID','password','name','phone','address','position','deposite','onWork') "
-				+ "VALUES (NULL,"+Passwd.hashCode()+",'"+Name+"',"+Phone+","+Address+","+position+","+deposite+",0);";
+				+ "VALUES (NULL,"+Passwd.hashCode()+",'"+Name+"','"+Phone+"','"+Address+"',"+position+",'"+deposite+"',0);";
 		if(excute(querys)){
 			return true;
 		}

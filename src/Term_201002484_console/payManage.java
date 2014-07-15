@@ -3,10 +3,10 @@ import java.util.*;
 import java.io.*;
 
 /**
-* @see empoloyee
-* @version 0.10
-* @author Lee, Han-Wool (kudnya@gmail.com)
-*/
+ * @see empoloyee
+ * @version 0.10
+ * @author Lee, Han-Wool (kudnya@gmail.com)
+ */
 public class payManage {
 	private static dbCon DB;
 	public static void main(String[] args) {
@@ -27,27 +27,28 @@ public class payManage {
 			DB = new dbCon();
 			Scanner inp = new Scanner(System.in);
 			System.out.println("================ New Start ================");
-			
+
 			System.out.print("Your Name : ");
 			String name = inp.nextLine();
-			
+
 			System.out.print("PassWord : ");
 			String Passwd = inp.nextLine();
-			
+
 			System.out.print("Phone : ");
 			String Phone = inp.nextLine();
-			
+
 			System.out.print("Address : ");
 			String address = inp.nextLine();
-			
+
 			System.out.print("Position : ");
 			int position = inp.nextInt();
-			
+
 			System.out.print("Deposite : ");
+			inp.nextLine();
 			String deposite = inp.nextLine();
-			
+
 			DB.newStart(Passwd , name, Phone, address, deposite, position);
-			
+
 			System.out.println("Your ID : 1");
 			System.out.println("Your PassWord : "+Passwd);
 			Login(1, Passwd.hashCode());
@@ -64,24 +65,34 @@ public class payManage {
 	 */
 	public static void Login(int ID, int HASH){
 		empoloyee logined = DB.Login(ID, HASH);
-			System.out.print("1. 출근 \n2. 퇴근\n3. 관리\n4. LogOut\nSelect : ");
-			Scanner inp = new Scanner(System.in);
-			int temp = inp.nextInt();
+		System.out.print("1. 출근 \n2. 퇴근\n3. 관리\n4. LogOut\nSelect : ");
+		Scanner inp = new Scanner(System.in);
+		int temp = inp.nextInt();
+		for(;;){
 			if(temp==1){
 				logined.startWork(ID, System.currentTimeMillis()/1000);
+				inp.close();
+				return;
 			}
 			if(temp==2){
 				logined.endWork(ID, System.currentTimeMillis()/1000);
+				inp.close();
+				return;
 			}
 			if(temp==3){
 				logined.manage();
+				inp.close();
+				return;
 			}
 			if(temp==4){
 				inp.close();
+				return;
 			}
 			else{
 				System.out.println("Worng.");
+				continue;
 			}
 		}
-	
+	}
+
 }

@@ -34,12 +34,13 @@ public class manager extends empoloyee {
 			int sel = inp_manager.nextInt();
 			switch(sel){
 			case 1: // 직원 관리
-				System.out.print("1. 한명씩 추가 \n2. 여러명 추가 \n3. 직원 퇴사\n4. exit\ninp_managerut :\n");
+				System.out.print("1. 한명씩 추가 \n2. 여러명 추가 \n3. 직원 퇴사\n4. exit\ninput :\n");
 				sel = inp_manager.nextInt();
 				switch(sel){
 
 				case 1: // 1명씩 
 					System.out.print("암호 : \n");
+					inp_manager.nextLine();
 					String Passwd = inp_manager.nextLine();
 					System.out.print("이름 : \n");
 					String Name = inp_manager.nextLine();
@@ -87,7 +88,7 @@ public class manager extends empoloyee {
 				}
 
 			case 2: // 직원 근태관리
-
+				System.out.println("1. 특정직원 급여 보기\n2. 다수직원 급여 출력\n3. exit\n");
 				break;
 			case 3:
 				inp_manager.close();
