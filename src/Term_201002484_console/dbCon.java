@@ -56,7 +56,6 @@ public class dbCon {
 				return false;
 			}
 			this.isOpened = true;
-			System.out.println("[DBG] Open");
 			return this.isOpened;
 		}
 	}
@@ -77,7 +76,6 @@ public class dbCon {
 			return false; 
 		}
 		this.isOpened = false;
-		System.out.println("[DBG] Close");
 		return true;
 	}
 	/**
