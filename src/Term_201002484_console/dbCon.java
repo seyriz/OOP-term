@@ -41,6 +41,10 @@ public class dbCon {
 	 * @exception SQLException
 	 */
 	public boolean open(){
+		if(this.isOpened){
+			System.out.println("DB already opened!!!!!");
+			return false;
+		}
 		try{
 			SQLiteConfig conf = new SQLiteConfig();
 			conf.setReadOnly(false);
@@ -80,26 +84,26 @@ public class dbCon {
 	 * @param HASH HASH화 된 비밀번호
 	 * @return 관리자 등급이면 manager, 아니면 empoloyee
 	 */
-	public empoloyee Login(int ID, int HASH){
+	public EmpoloyeesInfo Login(int ID, int HASH){
 		String query;
-		empoloyee temp;
+		EmpoloyeesInfo temp;
 		open();
 		try{
 			query = "SELECT * FROM PhoneBook WHERE ID="+ID+";";
 			this.dbResult = this.dbStat.executeQuery(query);
 			if(this.dbResult.getInt("password")==HASH){
-				if(this.dbResult.getInt("position")<isManager){
-					temp = new manager(new EmpoloyeesInfo(this.dbResult.getString("name"), this.dbResult.getString("phone"), 
+				if(this.dbResult.getBoolean("managePerm")){
+					temp = new EmpoloyeesInfo(new manager(this.dbResult.getString("name"), this.dbResult.getString("phone"), 
 							this.dbResult.getString("address"),this.dbResult.getString("deposite"), this.dbResult.getInt("ID"), 
-							this.dbResult.getInt("position"), this.dbResult.getBoolean("onWork")));
+							this.dbResult.getInt("position"), this.dbResult.getBoolean("onWork"),this.dbResult.getBoolean("managePerm")));
 					this.dbResult.close();
 					close();
 					return temp;
 				}
 				else{
-					temp = new empoloyee(new EmpoloyeesInfo(this.dbResult.getString("name"), this.dbResult.getString("phone"), 
+					temp = new EmpoloyeesInfo(new staff(this.dbResult.getString("name"), this.dbResult.getString("phone"), 
 							this.dbResult.getString("address"),this.dbResult.getString("deposite"), this.dbResult.getInt("ID"), 
-							this.dbResult.getInt("position"), this.dbResult.getBoolean("onWork")));
+							this.dbResult.getInt("position"), this.dbResult.getBoolean("onWork"),this.dbResult.getBoolean("managePerm")));
 					this.dbResult.close();
 					close();
 					return temp;
@@ -150,14 +154,14 @@ public class dbCon {
 			if(query_prefix.equals("CREATE")||query_prefix.equals("INSERT")||query_prefix.equals("UPDATE")||
 					query_prefix.equals("DELETE")||query_prefix.equals("PROGMA")||query_prefix.equals("DELETE")){
 				this.dbStat.executeUpdate(querys);
+				close();
+				return true;
 			}
 			else return false;
 		}catch(SQLException e){
 			e.printStackTrace();
 			return false;
 		}
-		close();
-		return true;
 	}
 	/**
 	 * 새로운 시작
@@ -170,7 +174,7 @@ public class dbCon {
 	 */
 	public void newStart(String Passwd, String Name, String Phone, String Address,String deposite, int position){
 		String query;
-		query = "CREATE TABLE 'PhoneBook' ('ID'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,'password' INTEGER NOT NULL,'name' TEXT NOT NULL,'phone'	TEXT,'address'	TEXT,'position'	INTEGER NOT NULL,'deposite' TEXT NOT NULL,'onWork'	INTEGER NOT NULL)";
+		query = "CREATE TABLE 'PhoneBook' ('ID'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,'password' INTEGER NOT NULL,'name' TEXT NOT NULL,'phone'	TEXT,'address'	TEXT,'position'	INTEGER NOT NULL,'deposite' TEXT NOT NULL,'onWork'	INTEGER NOT NULL,'managePerm' INTEGER NOT NULL)";
 		excute(query);
 		query = "CREATE TABLE 'Working' (	"
 				+ "'ID'	TEXT NOT NULL,"
@@ -179,7 +183,7 @@ public class dbCon {
 				+ "'endWork'	INTEGER,"
 				+ "'toDaysPay' 	INTEGER);";
 		excute(query);
-		query = "INSERT INTO 'PhoneBook'('ID','password','name','phone','address','position','deposite','onWork') VALUES (NULL,"+Passwd.hashCode()+",'"+Name+"','"+Phone+"','"+Address+"',"+position+",'"+deposite+"',0)";
+		query = "INSERT INTO 'PhoneBook'('ID','password','name','phone','address','position','deposite','onWork','managePerm') VALUES (NULL,"+Passwd.hashCode()+",'"+Name+"','"+Phone+"','"+Address+"',"+position+",'"+deposite+"',0,1)";
 		excute(query);
 	}
 	/**
@@ -190,8 +194,8 @@ public class dbCon {
 	public boolean importEmpoloyee(EmpoloyeesInfo empoloyees){
 		try{
 			for(;empoloyees.getNext()!=null;empoloyees=empoloyees.getNext()){
-				if(addStaff(empoloyees.getPasswWd(), empoloyees.getName(), empoloyees.getPhone(), empoloyees.getAddress(), empoloyees.getDeposite(), empoloyees.getPosition())){
-					System.out.println("직원 추가에 성공했습니다. "+empoloyees.getName()+"의 ID는 "+select("PhoneBook","name", empoloyees.getName(), "ID")+"입니다.");
+				if(addStaff(empoloyees.getPassWd(), empoloyees.getEmpoloyees().getName(), empoloyees.getEmpoloyees().getPhone(), empoloyees.getEmpoloyees().getAddress(), empoloyees.getEmpoloyees().getDeposite(), empoloyees.getEmpoloyees().getPosition())){
+					System.out.println("직원 추가에 성공했습니다. "+empoloyees.getEmpoloyees().getName()+"의 ID는 "+select("PhoneBook","name", empoloyees.getEmpoloyees().getName(), "ID")+"입니다.");
 				}
 				else{
 					System.out.println("직원 추가에 실패하였습니다.");
@@ -214,8 +218,13 @@ public class dbCon {
 	 * @return 수행결과 
 	 */
 	public boolean addStaff(String Passwd, String Name, String Phone, String Address, String deposite, int position){
-		String querys=  "INSERT INTO 'PhoneBook'('ID','password','name','phone','address','position','deposite','onWork') "
-				+ "VALUES (NULL,"+Passwd.hashCode()+",'"+Name+"','"+Phone+"','"+Address+"',"+position+",'"+deposite+"',0);";
+		int perm;
+		if(position<3){
+			perm = 1;
+		}
+		else perm = 0;
+		String querys=  "INSERT INTO 'PhoneBook'('ID','password','name','phone','address','position','deposite','onWork','managePerm') "
+				+ "VALUES (NULL,"+Passwd.hashCode()+",'"+Name+"','"+Phone+"','"+Address+"',"+position+",'"+deposite+"',0,'"+perm+"');";
 		if(excute(querys)){
 			return true;
 		}
@@ -258,10 +267,10 @@ public class dbCon {
 				close();
 				monthPay = getMonthPay(ID, YYYYMM);
 				if(empoloyees==null){
-					empoloyees = new EmpoloyeesInfo(name, phone, address, deposite, ID, monthPay);
+					empoloyees = new EmpoloyeesInfo(new empoloyee(name, phone, address, deposite, ID, 0, false, false));
 				}
 				else{
-					empoloyees.addEmpoloyee(name, phone, address, deposite, ID, monthPay);
+					empoloyees.addEmpoloyee(new empoloyee(name, phone, address, deposite, ID, 0, false, false));
 				}
 			}catch(SQLException e){
 			}catch(NullPointerException e){

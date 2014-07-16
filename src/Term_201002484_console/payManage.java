@@ -9,6 +9,7 @@ import java.io.*;
  */
 public class payManage {
 	private static dbCon DB;
+	private static IOProc IO = new IOProc();
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		try{
@@ -59,9 +60,9 @@ public class payManage {
 	 * @param HASH HASH화 된 비밀번호
 	 */
 	public static void Login(int ID, int HASH){
-		empoloyee logined = DB.Login(ID, HASH);
+		EmpoloyeesInfo logined = DB.Login(ID, HASH);
 		if(logined!=null){
-			logined.firstMenu();
+			IO.firstMenu(logined.getEmpoloyees());
 		}
 		else return;
 	}

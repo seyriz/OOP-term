@@ -5,11 +5,17 @@ import java.util.*;
  * @version 0.10
  * @author Lee, Han-Wool (kudnya@gmail.com)
  */
-public class empoloyee implements IOProc{
-	EmpoloyeesInfo empoloyees;
+public class empoloyee {
+	private String name, phone, address, deposite;
+	private int position, ID;
+	private long monthPay;
+	private boolean onWork;
 	protected dbCon DB;
+	protected IOProc IO;
 	protected long nowTime;
+	protected EmpoloyeesInfo empoloyees;
 	private GregorianCalendar calender;
+	private boolean managePerm;
 	private final int[] pays = {9000, 8000, 7000, 6000, 5210};
 	empoloyee(){
 		this.empoloyees = null;
@@ -17,9 +23,17 @@ public class empoloyee implements IOProc{
 		this.nowTime = -1;
 		this.calender = null;
 	}
-	empoloyee(EmpoloyeesInfo empoloyee){
-		this.empoloyees = empoloyee;
+	empoloyee(String name, String phone, String address, String deposite, int ID, int position, boolean onWork, boolean managePerm){
+		this.name = name;
+		this.phone = phone;
+		this.address = address;
+		this.deposite = deposite;
+		this.ID = ID;
+		this.position = position;
+		this.onWork = onWork;
+		this.managePerm = managePerm;
 		this.DB = new dbCon();
+		this.IO = new IOProc();
 		this.calender = new GregorianCalendar();
 	}
 	/**
@@ -86,7 +100,7 @@ public class empoloyee implements IOProc{
 	 * @param ID 사원번호
 	 * @return 근무 여부
 	 */
-	private boolean isOnWork(int ID) {
+	public boolean isOnWork(int ID) {
 		if(DB.select("PhoneBook","ID",Integer.toString(ID),"onWork").equals(Integer.toString(1))){
 			return true;
 		}
@@ -98,7 +112,7 @@ public class empoloyee implements IOProc{
 	 * @param ID 사원번호
 	 * @return 수행 결과 
 	 */
-	private boolean setOnWork(boolean work, int ID){
+	public boolean setOnWork(boolean work, int ID){
 		if(work){
 			String query = "UPDATE 'PhoneBook' SET onWork=1 WHERE ID="+Integer.toString(ID)+";";
 			return DB.excute(query);
@@ -108,73 +122,51 @@ public class empoloyee implements IOProc{
 			return DB.excute(query);
 		}
 	}
-	/**
-	 * 개인 관리 화면
-	 */
 	public void manage() {
 		// TODO Auto-generated method stub
-		Scanner inp_empoloyee = new Scanner(System.in);
-		for(;;){
-			System.out.println("================ 관리 ================");
-			System.out.print("1. 내 급여명세서 출력\n2. Exit\n");
-			int sel = Integer.parseInt(inp_empoloyee.nextLine());
-			switch(sel){
-			case 1: 
-				managePay();
-			case 2:
-				return;
-			default:
-				System.out.println("Worng");
-				continue;
-			}
-		}
-
+		
+	}
+	public boolean isManager(){
+		return managePerm;
+	}
+	public String getPhone() {
+		return phone;
+	}
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public String getDeposite() {
+		return deposite;
+	}
+	public void setDeposite(String deposite) {
+		this.deposite = deposite;
+	}
+	public long getMonthPay() {
+		return monthPay;
+	}
+	public void setMonthPay(long monthPay) {
+		this.monthPay = monthPay;
+	}
+	public String getName() {
+		return name;
+	}
+	public int getPosition() {
+		return position;
+	}
+	public int getID() {
+		return ID;
+	}
+	public boolean isManagePerm() {
+		return managePerm;
+	}
+	public int[] getPays() {
+		return pays;
 	}
 
-	private void managePay(){
-		Scanner inp_empoloyee = new Scanner(System.in);
-		System.out.print("출력하고 싶은 달을 입력하세요(YYYYMM형식) : ");
-		int YYYYMM = Integer.parseInt(inp_empoloyee.nextLine());
-		printPayBill(this.empoloyees.getID(), YYYYMM);
-		return;
-	}
-
-	public void printPayBill(int ID, int YYYYMM) {
-		// TODO Auto-generated method stub
-		System.out.println(this.empoloyees.getName()+"님의 "+YYYYMM+" 급여는 "+DB.getMonthPay(this.empoloyees.getID(), YYYYMM)+"입니다.");
-	}
-	public void printPaySheet(){
-	}
-	public EmpoloyeesInfo importEmpoloyee(String filePath) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public void firstMenu(){
-		for(;;){
-			System.out.print("1. 출근 \n2. 퇴근\n3. 관리\n4. LogOut\nSelect : ");
-			Scanner inp = new Scanner(System.in);
-			int temp = Integer.parseInt(inp.nextLine());
-
-			if(temp==1){
-				startWork(this.empoloyees.getID(), System.currentTimeMillis()/1000);
-				continue;
-			}
-			if(temp==2){
-				endWork(this.empoloyees.getID(), System.currentTimeMillis()/1000);
-				continue;
-			}
-			if(temp==3){
-				manage();
-				continue;
-			}
-			if(temp==4){
-				continue;
-			}
-			else{
-				System.out.println("Worng.");
-				continue;
-			}
-		}
-	}
 }
