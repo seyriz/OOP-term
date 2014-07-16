@@ -228,19 +228,11 @@ public class dbCon {
 		else perm = 0;
 		String querys=  "INSERT INTO 'PhoneBook'('ID','password','name','phone','address','position','deposite','onWork','managePerm') "
 				+ "VALUES (NULL,"+Passwd.hashCode()+",'"+Name+"','"+Phone+"','"+Address+"',"+position+",'"+deposite+"',0,'"+perm+"');";
-		try{
-			open();
-			this.dbStat.executeUpdate(querys);
-			close();
-			return true;
-		}catch(SQLException e){
-			e.printStackTrace();
-			return false;
-		}
-		//		if(excute(querys)){
-		//			return true;
-		//		}
-		//		else return false;
+		
+				if(excute(querys)){
+					return true;
+				}
+				else return false;
 	}
 	/**
 	 * 직원 삭제
