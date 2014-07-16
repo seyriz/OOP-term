@@ -45,18 +45,20 @@ public class dbCon {
 			System.out.println("DB already opened!!!!!");
 			return false;
 		}
-		try{
-			SQLiteConfig conf = new SQLiteConfig();
-			conf.setReadOnly(false);
-			this.dbConn = DriverManager.getConnection("jdbc:sqlite:"+this.dbFileName,conf.toProperties());
-			this.dbStat = dbConn.createStatement();
-		} catch(SQLException e){
-			e.printStackTrace();
-			return false;
+		else{
+			try{
+				SQLiteConfig conf = new SQLiteConfig();
+				conf.setReadOnly(false);
+				this.dbConn = DriverManager.getConnection("jdbc:sqlite:"+this.dbFileName,conf.toProperties());
+				this.dbStat = dbConn.createStatement();
+			} catch(SQLException e){
+				e.printStackTrace();
+				return false;
+			}
+			this.isOpened = true;
+			System.out.println("[DBG] Open");
+			return this.isOpened;
 		}
-		this.isOpened = true;
-		System.out.println("[DBG] Open");
-		return this.isOpened;
 	}
 	/**
 	 * 데이터베이스 클로즈
@@ -218,6 +220,7 @@ public class dbCon {
 	 * @return 수행결과 
 	 */
 	public boolean addStaff(String Passwd, String Name, String Phone, String Address, String deposite, int position){
+		// TODO Debug DB Lock error!!!
 		int perm;
 		if(position<3){
 			perm = 1;
@@ -225,10 +228,19 @@ public class dbCon {
 		else perm = 0;
 		String querys=  "INSERT INTO 'PhoneBook'('ID','password','name','phone','address','position','deposite','onWork','managePerm') "
 				+ "VALUES (NULL,"+Passwd.hashCode()+",'"+Name+"','"+Phone+"','"+Address+"',"+position+",'"+deposite+"',0,'"+perm+"');";
-		if(excute(querys)){
+		try{
+			open();
+			this.dbStat.executeUpdate(querys);
+			close();
 			return true;
+		}catch(SQLException e){
+			e.printStackTrace();
+			return false;
 		}
-		else return false;
+		//		if(excute(querys)){
+		//			return true;
+		//		}
+		//		else return false;
 	}
 	/**
 	 * 직원 삭제
@@ -277,7 +289,7 @@ public class dbCon {
 				e.printStackTrace();
 			}
 			finally{
-				
+
 			}
 		}
 		return empoloyees;
